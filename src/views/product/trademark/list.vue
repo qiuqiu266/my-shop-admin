@@ -56,7 +56,10 @@
         class="demo-ruleForm"
       >
         <el-form-item label="品牌名称" prop="tmName">
-          <el-input v-model="trademarkForm.tmName" style="width: 450px"></el-input>
+          <el-input
+            v-model="trademarkForm.tmName"
+            style="width: 450px"
+          ></el-input>
         </el-form-item>
         <el-form-item label="品牌LOGO" prop="logoUrl">
           <el-upload
@@ -159,16 +162,20 @@ export default {
       this.imageUrl = URL.createObjectURL(file.raw);
     },
     beforeAvatarUpload(file) {
-      const isJPG = file.type === "image/jpeg";
-      const isLt2M = file.size / 1024 / 1024 < 2;
+      // 图片类型
+      const imgTypes = ["image/jpg", "image/png"];
+      // 限制图片格式类型
+      const isValidType = imgTypes.indexOf(file.type) > -1;
+      // 限制图片大小
+      const isLt2M = file.size / 1024 < 50;
 
-      if (!isJPG) {
-        this.$message.error("上传头像图片只能是 JPG 格式!");
+      if (!isValidType) {
+        this.$message.error("上传头像图片只能是 JPG 或 PNG 格式!");
       }
       if (!isLt2M) {
-        this.$message.error("上传头像图片大小不能超过 2MB!");
+        this.$message.error("上传头像图片大小不能超过 50kb!");
       }
-      return isJPG && isLt2M;
+      return isValidType && isLt2M;
     },
     // 提交表单校验
     submitForm(form) {
