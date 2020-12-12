@@ -14,23 +14,23 @@ export default {
   },
 
   // 修改更新
-  upDateTrademark(banner) {
+  upDateTrademark(data) {
     return request({
       method: "PUT",
       url: `${api_name}/update`,
       data: {
-        banner
+        data
       }
     });
   },
 
   // 新增品牌数据
-  addTrademark(banner) {
+  addTrademark(data) {
     return request({
       method: "POST",
       url: `${api_name}/save`,
       data: {
-        banner
+        data
       }
     });
   },

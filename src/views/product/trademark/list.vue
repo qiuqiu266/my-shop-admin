@@ -64,7 +64,7 @@
         <el-form-item label="品牌LOGO" prop="logoUrl">
           <el-upload
             class="avatar-uploader"
-            action="https://jsonplaceholder.typicode.com/posts/"
+            :action="`${$BASE_API}/admin/product/fileUpload`"
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload"
@@ -117,9 +117,7 @@ export default {
         tmName: [
           { required: true, message: "请输入品牌名称", trigger: "blur" },
         ],
-        logoUrl: [
-          { required: true, message: "请上传品牌LOGO图片", trigger: "change" },
-        ],
+        logoUrl: [{ required: true, message: "请上传品牌LOGO图片" }],
       },
       imageUrl: "",
     };
@@ -139,31 +137,26 @@ export default {
 
     // 请求分页列表数据的方法
     async getPageList(page, limit) {
-      try {
-        const result = await this.$API.trademark.getPageList(page, limit);
-        // console.log("result",result);
-        if (result.code === 200) {
-          this.$message.success("获取品牌分页列表成功");
-          // 请求成功
-          this.trademarkList = result.data.records; // 数据数组
-          this.total = result.data.total; // 总数
-          this.limit = result.data.size; // 每页显示条数
-          this.page = result.data.current; // 当前的页码
-        } else {
-          this.$message.error("获取品牌分页列表失败");
-        }
-      } catch (e) {
-        console.log(e);
+      const result = await this.$API.trademark.getPageList(page, limit);
+      // console.log("result",result);
+      if (result.code === 200) {
+        this.$message.success("获取品牌分页列表成功");
+        // 请求成功
+        this.trademarkList = result.data.records; // 数据数组
+        this.total = result.data.total; // 总数
+        this.limit = result.data.size; // 每页显示条数
+        this.page = result.data.current; // 当前的页码
+      } else {
         this.$message.error("获取品牌分页列表失败");
       }
     },
 
-    handleAvatarSuccess(res, file) {
-      this.imageUrl = URL.createObjectURL(file.raw);
+    handleAvatarSuccess(res) {
+      this.trademarkForm.logoUrl = res.data;
     },
     beforeAvatarUpload(file) {
       // 图片类型
-      const imgTypes = ["image/jpg", "image/png"];
+      const imgTypes = ["image/jpg", "image/png", "image/jpeg"];
       // 限制图片格式类型
       const isValidType = imgTypes.indexOf(file.type) > -1;
       // 限制图片大小
@@ -179,11 +172,24 @@ export default {
     },
     // 提交表单校验
     submitForm(form) {
-      this.$refs[form].validate((valid) => {
+      this.$refs[form].validate(async (valid) => {
         if (valid) {
-          console.log(this.trademarkFrom);
+          // 表单校验通过
+          // console.log(this.trademarkFrom);
+          // 发送请求
+          const result = await this.$API.trademark.addTrademark(
+            this.trademarkForm
+          );
+          if (result.code === 200) {
+            this.$message.success("添加品牌数据成功");
+            // 隐藏对话框
+            this.visible = false;
+            // 请求加载新数据
+            this.getPageList(this.page, this.limit);
+          }
         } else {
-          console.log("表单校验失败");
+          // console.log("表单校验失败");
+          this.$message.error(result.message);
         }
       });
     },
