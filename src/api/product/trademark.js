@@ -18,9 +18,7 @@ export default {
     return request({
       method: "PUT",
       url: `${api_name}/update`,
-      data: {
-        data
-      }
+      data
     });
   },
 
@@ -29,9 +27,7 @@ export default {
     return request({
       method: "POST",
       url: `${api_name}/save`,
-      data: {
-        data
-      }
+      data
     });
   },
 
