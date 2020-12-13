@@ -1,7 +1,12 @@
 <template>
   <div>
     <el-button type="primary" icon="el-icon-plus" @click="add">添加</el-button>
-    <el-table :data="trademarkList" border style="width: 100%; margin: 20px 0">
+    <el-table
+      :data="trademarkList"
+      v-loading="loading"
+      border
+      style="width: 100%; margin: 20px 0"
+    >
       <el-table-column type="index" label="序号" width="80" align="center">
       </el-table-column>
       <el-table-column prop="tmName" label="品牌名称"> </el-table-column>
@@ -107,6 +112,7 @@ export default {
       //       "https://dss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1819216937,2118754409&fm=26&gp=0.jpg",
       //   },
       // ],
+      loading: false,
       trademarkList: [],
       total: 0,
       page: 1, // 默认当前页码
@@ -127,6 +133,7 @@ export default {
       imageUrl: "",
     };
   },
+
   // 方法
   methods: {
     // // 选择每页显示几条
@@ -142,6 +149,8 @@ export default {
 
     // 请求分页列表数据的方法
     async getPageList(page, limit) {
+      // 请求前加载显示
+      this.loading = true;
       const result = await this.$API.trademark.getPageList(page, limit);
       // console.log("result", result);
       if (result.code === 200) {
@@ -154,6 +163,8 @@ export default {
       } else {
         this.$message.error("获取品牌分页列表失败");
       }
+      // 请求完不显示
+      this.loading = false;
     },
     // 校验品牌名称
     handleAvatarSuccess(res) {
