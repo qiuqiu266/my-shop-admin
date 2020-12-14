@@ -1,10 +1,11 @@
 <template>
   <div>
-    <Category
+    <!-- <Category
       @change="getAttrList"
       @clearList="clearList"
       :disabled="!isShowList"
-    />
+    /> -->
+    <Category :disabled="!isShowList" />
     <!--  -->
     <el-card style="margin-top: 20px" v-show="isShowList">
       <el-button
@@ -144,7 +145,7 @@ export default {
       this.attr.attrName = "";
       this.attr.attrValueList = [];
       // 清空id
-      this.attr.id = ""; 
+      this.attr.id = "";
     },
     // 编辑完成
     editCompleted(row, index) {
@@ -228,6 +229,19 @@ export default {
         this.$message.error(result.message);
       }
     },
+  },
+  mount() {
+    //  @change="getAttrList"
+    //   @clearList="clearList"
+    // 绑定全局事件总线
+    this.$bus.$on("getAttrList", this.getAttrList);
+    this.$bus.$on("clearList", this.clearList);
+  },
+  // 解绑事件
+  beforeDestroy() {
+    // 通常情况下都要清除全局事件
+    this.$bus.$off("getAttrList", getAttrList);
+    this.$bus.$off("clearList", clearList);
   },
   components: {
     Category,

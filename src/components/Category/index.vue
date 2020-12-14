@@ -86,7 +86,7 @@ export default {
         this.$message.error(result.message);
       }
       // 触发父组件定义的方法 清空父组件数据
-      this.$emit("clearList");
+      this.$bus.$emit("clearList");
     },
     async handleSelectChange2(category2Id) {
       // 当选择二级分类换一个品牌的时候 需要将 三级分类id清空
@@ -102,7 +102,7 @@ export default {
         this.$message.error(result.message);
       }
       // 触发父组件定义的方法  清空父组件数据
-      this.$emit("clearList");
+      this.$bus.$emit("clearList");
     },
     async handleSelectChange3(category3Id) {
       // 获取一级二级列表
@@ -111,7 +111,7 @@ export default {
         category3Id,
       };
       // 发送请求 触发父级自定义事件 将属性列表传递给父级组件
-      this.$emit("change", category);
+      this.$bus.$emit("change", category);
       // const result = await this.$API.attrs.attrInfoList(category);
       // // console.log(result.data);
       // if (result.code === 200) {

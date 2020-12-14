@@ -4,49 +4,54 @@ const api_name = "/admin/product";
 
 export default {
   /*
-  获取所有属性列表数据
+ 
+GET /admin/product/getSpuById/{spuId}
+获取spu基本信息
+
   */
-  getCategory1() {
+  //  获取销售属性列表
+  getSaleAttrList() {
     return request({
       method: "GET",
-      url: `${api_name}/getCategory1`
+      url: `${api_name}/baseSaleAttrList`
     });
   },
-  // 获取二级分类列表
-  getCategory2(category1Id) {
+
+  // 获取分页列表
+  getSpuList({category3Id, page, limit}) {
     return request({
       method: "GET",
-      url: `${api_name}/getCategory2/${category1Id}`
+      url: `${api_name}/${page}/${limit}`,
+      // 查询字符串参数
+      params: {
+        category3Id
+      }
     });
   },
-  // 获取三级分类列表
-  getCategory3(category2Id) {
+
+  // 更改spu信息
+  updateSpuInfo(spu) {
     return request({
-      method: "GET",
-      url: `${api_name}/getCategory3/${category2Id}`
+      method: "POST",
+      url: `${api_name}/updateSpuInfo`,
+      data: spu
     });
   },
-  // 获取属性列表
-  getAttrList({ category1Id, category2Id, category3Id }) {
+
+  // 保存
+  saveSpuInfo(spu) {
     return request({
-      method: "GET",
-      url: `${api_name}/attrInfoList/${category1Id}/${category2Id}/${category3Id}`
+      method: "POST",
+      url: `${api_name}/saveSpuInfo`,
+      data: spu
     });
   },
-  // 获取属性值列表
-  getAttrValueList(attrId) {
-    return request({
-      method: "GET",
-      url: `${api_name}/getAttrValueList/${attrId}`
-    });
-  },
-  // 删除属性列表
-  deleteAttr(attrId) {
+
+  // 删除
+  deleteSpu(spuId) {
     return request({
       method: "DELETE",
-      url: `${api_name}/deleteAttr/${attrId}`
+      url: `${api_name}/deleteSpu/${spuId}`
     });
-  },
-  // 保存
- 
+  }
 };

@@ -2,15 +2,15 @@
   <div>
     <el-card style="margin-top: 20px">
       <el-form label-width="80px">
-        <el-form-item label="SPU名称" prop="name">
+        <el-form-item label="SPU名称" >
           <el-input placeholder="SPU名称"></el-input>
         </el-form-item>
         <el-form-item label="品牌">
           <el-select placeholder="请选择品牌">
-            <el-option label="无" value="item.value"></el-option>
+            <el-option label="无" ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="SPU描述" prop="desc">
+        <el-form-item label="SPU描述" >
           <el-input
             placeholder="SPU描述"
             type="textarea"
@@ -39,7 +39,7 @@
       <el-table :data="[]" border style="width: 100%; margin: 20px 0">
         <el-table-column type="index" label="序号" width="80" align="center">
         </el-table-column>
-        <el-table-column prop="attrName" label="属性名称"> </el-table-column>
+        <el-table-column  label="属性名称"> </el-table-column>
         <el-table-column label="属性值名称~~~">
           <template>
             <el-input size="mini"></el-input>
@@ -53,7 +53,7 @@
                 type="danger"
                 icon="el-icon-delete"
                 size="mini"
-                slot="reference"
+                
               ></el-button>
             </el-popconfirm>
           </template>

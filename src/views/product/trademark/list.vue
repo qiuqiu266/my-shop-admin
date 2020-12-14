@@ -45,7 +45,7 @@
     <el-pagination
       @size-change="getPageList(page, $event)"
       @current-change="getPageList($event, limit)"
-      class="trademark-pagination"
+      class="pagination"
       :page-sizes="[3, 6, 9]"
       :page-size.sync="limit"
       :page-current="page"
@@ -268,11 +268,7 @@ export default {
 .trademark-img
   width: 150px
 
-.trademark-pagination
-  text-align: right
 
->>>.el-pagination__sizes
-  margin-left: 250px
 
 >>>.avatar-uploader .el-upload
   border: 1px dashed #d9d9d9
