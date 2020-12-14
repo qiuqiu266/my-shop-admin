@@ -4,7 +4,7 @@ const api_name = "/admin/product";
 
 export default {
   /*
-  获取一级分类列表
+  获取所有属性列表数据
   */
   getCategory1() {
     return request({
@@ -48,11 +48,5 @@ export default {
     });
   },
   // 保存
-  saveAttrInfo(attr) {
-    return request({
-      method: "POST",
-      url: `${api_name}/saveAttrInfo`,
-      data: attr
-    });
-  }
+ 
 };

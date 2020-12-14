@@ -85,6 +85,8 @@ export default {
       } else {
         this.$message.error(result.message);
       }
+      // 触发父组件定义的方法 清空父组件数据
+      this.$emit("clearList");
     },
     async handleSelectChange2(category2Id) {
       // 当选择二级分类换一个品牌的时候 需要将 三级分类id清空
@@ -99,6 +101,8 @@ export default {
       } else {
         this.$message.error(result.message);
       }
+      // 触发父组件定义的方法  清空父组件数据
+      this.$emit("clearList");
     },
     async handleSelectChange3(category3Id) {
       // 获取一级二级列表

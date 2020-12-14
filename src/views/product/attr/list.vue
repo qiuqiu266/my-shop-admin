@@ -1,12 +1,20 @@
 <template>
   <div>
-    <Category @change="getAttrList" :disabled="!isShowList" />
+    <Category
+      @change="getAttrList"
+      @clearList="clearList"
+      :disabled="!isShowList"
+    />
     <!--  -->
     <el-card style="margin-top: 20px" v-show="isShowList">
-      <el-button type="primary" icon="el-icon-plus" disabled
+      <el-button
+        type="primary"
+        icon="el-icon-plus"
+        :disabled="!category.category3Id"
+        @click="add"
         >添加属性</el-button
       >
-      <el-table :data="attrList" border style="width: 100%,margin-top:20px">
+      <el-table style="margin-top: 20px; width: 100%" :data="attrList" border>
         <el-table-column type="index" label="序号" width="80" align="center">
         </el-table-column>
         <el-table-column prop="attrName" label="属性名称"> </el-table-column>
@@ -100,7 +108,7 @@
 </template>
 
 <script>
-import Category from "./category";
+import Category from "@/components/Category";
 export default {
   name: "AttrList",
   data() {
@@ -111,10 +119,33 @@ export default {
         attrName: "", // 属性名称
         attrValueList: [], // 属性值列表
       },
+      category: {
+        category1Id: "",
+        category2Id: "",
+        category3Id: "",
+      },
     };
   },
   // 方法
   methods: {
+    // 当一级，二级分类发生变化时，清空数据列表
+    // 自定义事件，组件调用触发事件
+    clearList() {
+      // 清空数据
+      this.attrList = [];
+      // 禁用按钮
+      this.category.category3Id = "";
+    },
+    // 点击添加属性按钮 显示添加属性列表
+    add() {
+      // 切换显示列表
+      this.isShowList = false;
+      //属性名称 属性值列表为空
+      this.attr.attrName = "";
+      this.attr.attrValueList = [];
+      // 清空id
+      this.attr.id = ""; 
+    },
     // 编辑完成
     editCompleted(row, index) {
       // 判断点击修改时输入框是否有值
@@ -128,8 +159,19 @@ export default {
     },
     // 保存
     async save() {
+      // 判断保存的是否是添加 如果attr存在id 就不是添加的操作
+      const isAdd = !this.attr.id;
+      const data = this.attr;
+      if (isAdd) {
+        // 如果是添加 this.attr里面就只有attrName,attrValueList
+        // 所以还需要 categoryId 和 categoryLevel
+        data.categoryId = this.category.category3Id;
+        data.categoryLevel = 3;
+      }
+
       // 发送请求
-      const result = await this.$API.attrs.saveAttrInfo(this.attr);
+      const result = await this.$API.attrs.saveAttrInfo(data);
+
       // 判断
       if (result.code === 200) {
         this.$message.success("保存成功");
@@ -175,7 +217,8 @@ export default {
     async getAttrList(category) {
       // this.attrList = attrList;
       this.category = category;
-      const result = await this.$API.attrs.attrInfoList(category);
+      // 发送请求 获取属性列表
+      const result = await this.$API.attrs.getAttrList(category);
       // console.log(result.data);
       if (result.code === 200) {
         // // 请求成功 触发父级自定义事件 将属性列表传递给父级组件
