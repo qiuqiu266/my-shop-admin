@@ -3,7 +3,7 @@
     <el-card style="margin-top: 20px">
       <el-button type="primary" icon="el-icon-plus">添加SPU</el-button>
       <el-table
-        style="margin-top: 20px; width: 100%"
+        style="margin: 20px 0; width: 100%"
         :data="spuList"
         v-loading="loading"
         border
@@ -12,19 +12,30 @@
         </el-table-column>
         <el-table-column prop="spuName" label="SPU名称"> </el-table-column>
         <el-table-column prop="description" label="SPU描述">
-          <template>
+          <!-- <template>
             <el-tag style="margin-right: 5px"></el-tag>
-          </template>
+          </template> -->
         </el-table-column>
         <el-table-column label="操作">
-          <el-button type="primary" icon="el-icon-plus" size="mini"></el-button>
-          <el-button type="primary" icon="el-icon-edit" size="mini"></el-button>
-          <el-button type="info" icon="el-icon-info" size="mini"></el-button>
-          <el-button
-            type="danger"
-            icon="el-icon-delete"
-            size="mini"
-          ></el-button>
+          <template slot-scope="{row}">
+            <el-button
+              type="primary"
+              icon="el-icon-plus"
+              size="mini"
+            ></el-button>
+            <el-button
+              type="primary"
+              icon="el-icon-edit"
+              size="mini"
+              @click="$emit('showUpdateList',row)"
+            ></el-button>
+            <el-button type="info" icon="el-icon-info" size="mini"></el-button>
+            <el-button
+              type="danger"
+              icon="el-icon-delete"
+              size="mini"
+            ></el-button>
+          </template>
         </el-table-column>
       </el-table>
       <el-pagination

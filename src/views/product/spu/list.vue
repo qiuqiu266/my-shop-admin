@@ -8,9 +8,9 @@
     <!-- 三级分类 -->
     <Category />
     <!-- SPU列表 -->
-    <SpuShowList v-show="isShowList" />
+    <SpuShowList v-if="isShowList" @showUpdateList="showUpdateList" />
     <!-- 添加SPU属性值 -->
-    <SpuUpdateList v-show="!isShowList" />
+    <SpuUpdateList v-else :item="item" />
   </div>
 </template>
 
@@ -23,6 +23,8 @@ export default {
   data() {
     return {
       isShowList: true,
+      // 当前行的数据（SPU名称，SPU描述）
+      item: {},
     };
   },
   // 注册组件
@@ -31,11 +33,13 @@ export default {
     SpuShowList,
     SpuUpdateList,
   },
-  // mount() {
-  //   // 绑定事件全局总线
-  //   this.$bus.$on("change", change);
-  // },
-  // 解绑
-  // beforeDestroy() {},
+  methods: {
+    // 修改按钮的回调
+    showUpdateList(row) {
+      // 隐藏当前页面 切换到编辑页面
+      this.isShowList = false;
+      this.item = { ...row };
+    },
+  },
 };
 </script>
