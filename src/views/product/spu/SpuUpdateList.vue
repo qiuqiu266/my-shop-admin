@@ -14,11 +14,12 @@
           ></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="SPU描述">
+      <el-form-item label="SPU描述" prop="description">
         <el-input
           placeholder="SPU描述"
           type="textarea"
           style="height: 60px"
+          v-model="spu.description"
         ></el-input>
       </el-form-item>
       <el-form-item label="SPU图片" prop="imageList">
@@ -26,9 +27,10 @@
           class="avatar-uploader"
           :action="`${$BASE_API}/admin/product/fileUpload`"
           list-type="picture-card"
-          :file-list="imageList"
+          :file-list="formatImageList"
           :on-preview="handlePictureCardPreview"
           :on-remove="handleRemove"
+          :on-success="handleAvatarSuccess"
         >
           <!-- <img class="avatar" /> -->
           <i class="el-icon-plus avatar-uploader-icon"></i>
@@ -37,9 +39,12 @@
       </el-form-item>
       <!-- prop="saleAttrId" 将来作为表单校验的 -->
       <el-form-item label="销售属性" prop="saleAttrId">
-        <el-select placeholder="还剩三个未选择" v-model="spu.saleAttrId">
+        <el-select
+          :placeholder="`还剩${filterSaleAttrList.length}个未选择`"
+          v-model="spu.saleAttrId"
+        >
           <el-option
-            v-for="sale in saleAttrList"
+            v-for="sale in filterSaleAttrList"
             :key="sale.id"
             :label="sale.name"
             :value="sale.id"
@@ -53,7 +58,8 @@
         >
           <el-table-column type="index" label="序号" width="80" align="center">
           </el-table-column>
-          <el-table-column label="属性名称" width="100" prop="saleAttrName"> </el-table-column>
+          <el-table-column label="属性名称" width="100" prop="saleAttrName">
+          </el-table-column>
           <el-table-column label="属性值列表">
             <template v-slot="{ row }">
               <el-tag
@@ -67,12 +73,11 @@
           <el-table-column label="操作">
             <template>
               <!-- <el-popconfirm> -->
-                <el-button
-                  type="danger"
-                  icon="el-icon-delete"
-                  size="mini"
-                ></el-button>
-
+              <el-button
+                type="danger"
+                icon="el-icon-delete"
+                size="mini"
+              ></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -107,7 +112,42 @@ export default {
       spuSaleAttrList: [], // 当前行SPu销售属性列表
     };
   },
+  // 计算属性
+  computed: {
+    // 上传图片格式化
+    formatImageList() {
+      return this.imageList.map((img) => {
+        return {
+          uid: img.uid || img.id,
+          name: img.imgName,
+          url: img.imgUrl,
+        };
+      });
+    },
+    // 销售属性选中后显示几个可选
+    filterSaleAttrList() {
+      return this.saleAttrList.filter((sale) => {
+        // .indexOf() 只适用于数组中是基本类型
+        // 找到了返回对象，没有则返回undefined
+        // find() 适用于数组中是引用类型
+        return !this.spuSaleAttrList.find(
+          (spuSale) => spuSale.baseSaleAttrId === sale.id
+        );
+      });
+    },
+  },
   methods: {
+    // 上传图片成功的回调
+    handleAvatarSuccess(res, file) {
+      // this.trademarkForm.logoUrl = res.data;
+      // 将上传的图片放入到imageList
+      this.imageList.push({
+        uid: file.uid,
+        imgNmae: file.name, // 文件名称
+        imgUrl: res.data, // 图片地址
+        spuId: this.spu.id, // spuId
+      });
+    },
     // 处理图片删除
     handleRemove(file, fileList) {
       // console.log(file, fileList);
@@ -136,18 +176,18 @@ export default {
       const { id } = this.spu;
       const result = await this.$API.spu.getSpuImageList(id);
       if (result.code === 200) {
-        console.log(result);
+        // console.log(result);
         this.$message.success("获取所有图片列表成功");
-        // this.imageList = result.data;
+        this.imageList = result.data;
         // 获取图片数据列表
-        console.log(result.data);
-        this.imageList = result.data.map((img) => {
-          return {
-            id: img.id,
-            name: img.imgName,
-            url: img.imgUrl,
-          };
-        });
+        // console.log(result.data);
+        // this.imageList = result.data.map((img) => {
+        //   return {
+        //     id: img.id,
+        //     name: img.imgName,
+        //     url: img.imgUrl,
+        //   };
+        // });
       } else {
         this.$message.error(result.message);
       }
@@ -172,9 +212,8 @@ export default {
       const { id } = this.spu;
       const result = await this.$API.spu.getSpuSaleAttrList(id);
       if (result.code === 200) {
-        console.log(result);
+        // console.log(result);
         this.$message.success("获取Spu销售属性列表成功");
-
         // 获取Spu销售属性
         this.spuSaleAttrList = result.data;
       } else {
