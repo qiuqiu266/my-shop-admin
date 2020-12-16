@@ -166,25 +166,27 @@ export default {
       // 请求完不显示
       this.loading = false;
     },
-    // 校验品牌名称
+    // 上传图片成功的回调
     handleAvatarSuccess(res) {
       this.trademarkForm.logoUrl = res.data;
     },
-    // 校验品牌LOGO
+    // 上传图片之前触发的回调 校验品牌LOGO
     beforeAvatarUpload(file) {
-      // 图片类型
+      // 设定图片类型
       const imgTypes = ["image/jpg", "image/png", "image/jpeg"];
-      // 限制图片格式类型
+      // 设定限制图片格式类型（上传的图片类型包含设定的图片类型）
       const isValidType = imgTypes.indexOf(file.type) > -1;
-      // 限制图片大小
+      // 设定限制图片大小
       const isLt2M = file.size / 1024 < 50;
-
+      // 判断如果不是设定的图片类型 给出提示信息
       if (!isValidType) {
         this.$message.error("上传头像图片只能是 JPG 或 PNG 格式!");
       }
+      // 判断如果不是限制的图片大小 给出提示信息
       if (!isLt2M) {
         this.$message.error("上传头像图片大小不能超过 50kb!");
       }
+      // 满足条件 则返回出去
       return isValidType && isLt2M;
     },
     // 添加
