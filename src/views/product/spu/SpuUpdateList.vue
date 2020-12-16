@@ -86,12 +86,12 @@
           <el-table-column label="属性名称" width="100" prop="saleAttrName">
           </el-table-column>
           <el-table-column label="属性值列表">
-            <template v-slot="{ row ,$index}">
+            <template v-slot="{ row }">
               <el-tag
-                @close="delTag(attrVal.id, row)"
+                @close="delTag(i, row)"
                 closable
                 style="margin-right: 5px"
-                v-for="attrVal in row.spuSaleAttrValueList"
+                v-for="(attrVal, i) in row.spuSaleAttrValueList"
                 :key="attrVal.id"
                 >{{ attrVal.saleAttrValueName }}</el-tag
               >
@@ -99,8 +99,8 @@
                 v-if="row.edit"
                 size="mini"
                 style="width: 100px"
-                @blur="editCompleted(row, $index)"
-                @keyup.enter.native="editCompleted(row, $index)"
+                @blur="editCompleted(row)"
+                @keyup.enter.native="editCompleted(row)"
                 autofocus
                 ref="input"
                 v-model="saleAttrValueText"
@@ -133,7 +133,7 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="save">保存</el-button>
-        <el-button>取 消</el-button>
+        <el-button >取 消</el-button>
       </el-form-item>
     </el-form>
     <el-dialog :visible.sync="visible">
@@ -203,10 +203,11 @@ export default {
       this.spuSaleAttrList.splice(index, 1);
     },
     // 删除当个属性值
-    delTag(tageId, row) {
-      row.spuSaleAttrValueList = row.spuSaleAttrValueList.filter(
-        (saleAttrValue) => saleAttrValue.id !== tageId
-      );
+    delTag(index, row) {
+      this.spuSaleAttrValueList.splice(index, 1);
+      // row.spuSaleAttrValueList = row.spuSaleAttrValueList.filter(
+      //   (saleAttrValue) => saleAttrValue.id !== tageId
+      // );
     },
     imageListValidator(rules, value, callback) {
       // 判断至少上传一张图片
@@ -238,12 +239,32 @@ export default {
     },
     // 保存 时校验表单规则
     save() {
-      this.$refs.spuForm.validate((valid) => {
+      this.$refs.spuForm.validate(async (valid) => {
         if (valid) {
-          // console.log("校验通过~");
+          console.log("校验通过~");
+          // 收集数据
+          const spu = {
+            ...this.spu,
+            spuImageList: this.imageList,
+            spuSaleAttrList: this.spuSaleAttrList,
+          };
+          let result;
+          // 发送请求
+          if (this.spu.id) {
+            result = await this.$API.spu.updateSpuInfo(spu);
+          } else {
+            result = await this.$API.spu.saveSpuInfo(spu);
+          }
+          if (result.code === 200) {
+            // 切换回showList
+            this.$emit("showList", this.spu.category3Id);
+            this.$message.success(`{this.spu.id ? "更新":"添加"}SPU成功`);
+          } else {
+            this.$message.error(result.message);
+          }
         }
       });
-      console.log("校验通过~");
+      // console.log("校验通过~");
     },
 
     // 显示编辑输入框

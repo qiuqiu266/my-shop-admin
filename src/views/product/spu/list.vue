@@ -10,7 +10,7 @@
     <!-- SPU列表 -->
     <SpuShowList v-if="isShowList" @showUpdateList="showUpdateList" />
     <!-- 添加SPU属性值 -->
-    <SpuUpdateList v-else :item="item" />
+    <SpuUpdateList v-else :item="item" @showList="showList" />
   </div>
 </template>
 
@@ -39,6 +39,13 @@ export default {
       // 隐藏当前页面 切换到编辑页面
       this.isShowList = false;
       this.item = { ...row };
+    },
+    showList(category3Id) {
+      this.isShowList = true;
+      // 等待showList 组件加载完成，再触发事件
+      this.$nextTick(() => {
+        this.$bus.$emit("change", { category3Id });
+      });
     },
   },
 };
