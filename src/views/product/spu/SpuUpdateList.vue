@@ -1,6 +1,18 @@
 <template>
   <el-card style="margin-top: 20px">
-    <el-form label-width="80px" :model="spu">
+    <!-- 
+      表单校验
+        1.整体form 表单中
+        2.通过prop属性来定义表单项名称
+        3.定义表单校验规则
+           在data中定义rules
+           绑定在form
+          4.定义ref
+
+          注：element-ui 的Form 表单检验 不是所有的表单项都能校验，
+              某些表单项校验规则需要自己写（可以使用自定义规则）
+     -->
+    <el-form label-width="80px" :model="spu" :rules="rules" ref="spuForm">
       <el-form-item label="SPU名称" prop="spuName">
         <el-input placeholder="请输入SPU名称" v-model="spu.spuName"></el-input>
       </el-form-item>
@@ -74,8 +86,10 @@
           <el-table-column label="属性名称" width="100" prop="saleAttrName">
           </el-table-column>
           <el-table-column label="属性值列表">
-            <template v-slot="{ row }">
+            <template v-slot="{ row ,$index}">
               <el-tag
+                @close="delTag(attrVal.id, row)"
+                closable
                 style="margin-right: 5px"
                 v-for="attrVal in row.spuSaleAttrValueList"
                 :key="attrVal.id"
@@ -101,19 +115,24 @@
             </template>
           </el-table-column>
           <el-table-column label="操作">
-            <template>
-              <!-- <el-popconfirm> -->
-              <el-button
-                type="danger"
-                icon="el-icon-delete"
-                size="mini"
-              ></el-button>
+            <template v-slot="{ row, $index }">
+              <el-popconfirm
+                @onConfirm="delSaleAttr($index)"
+                :title="`确定删除${row.saleAttrName}吗？`"
+              >
+                <el-button
+                  type="danger"
+                  icon="el-icon-delete"
+                  size="mini"
+                  slot="reference"
+                ></el-button>
+              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary">保存</el-button>
+        <el-button type="primary" @click="save">保存</el-button>
         <el-button>取 消</el-button>
       </el-form-item>
     </el-form>
@@ -141,6 +160,15 @@ export default {
       saleAttrList: [], // 所有销售属性列表数组
       spuSaleAttrList: [], // 当前行SPu销售属性列表
       saleAttrValueText: "", // 销售属性值文本
+      // 表单校验规则
+      rules: {
+        // required: true  加个红 星号的作用
+        spuName: [{ required: true, message: "请输入SPU名称" }],
+        tmId: [{ required: true, message: "请选择品牌" }],
+        description: [{ required: true, message: "请输入SPU描述" }],
+        imageList: [{ validator: this.imageListValidator, required: true }],
+        sale: [{ validator: this.saleValidator, required: true }],
+      },
     };
   },
   // 计算属性
@@ -169,6 +197,55 @@ export default {
     },
   },
   methods: {
+    // 删除整个销售属性值列表
+    delSaleAttr(index) {
+      // console.log(index);
+      this.spuSaleAttrList.splice(index, 1);
+    },
+    // 删除当个属性值
+    delTag(tageId, row) {
+      row.spuSaleAttrValueList = row.spuSaleAttrValueList.filter(
+        (saleAttrValue) => saleAttrValue.id !== tageId
+      );
+    },
+    imageListValidator(rules, value, callback) {
+      // 判断至少上传一张图片
+      if (this.imageList.length > 0) {
+        // 校验通过
+        callback();
+        return;
+      }
+      // 校验失败
+      callback(new Error("请至少上传一张图片"));
+    },
+    saleValidator(rules, value, callback) {
+      // 判断至少选择一个销售属性
+      if (this.spuSaleAttrList.length === 0) {
+        callback(new Error("请选择至少一个销售属性"));
+        return;
+      }
+      // 判断销售属性至少添加一个销售属性值
+      // 看spuSaleAttrList属性列表中的属性是否有至少一个属性值
+      const isNotOk = this.spuSaleAttrList.some(
+        (sale) => sale.spuSaleAttrValueList.length === 0
+      );
+      // 判断没有值
+      if (isNotOk) {
+        callback(new Error("销售属性至少添加一个销售属性值，请您添加后提交"));
+        return;
+      }
+      callback();
+    },
+    // 保存 时校验表单规则
+    save() {
+      this.$refs.spuForm.validate((valid) => {
+        if (valid) {
+          // console.log("校验通过~");
+        }
+      });
+      console.log("校验通过~");
+    },
+
     // 显示编辑输入框
     edit(row) {
       this.$set(row, "edit", true);
@@ -183,12 +260,14 @@ export default {
       // 判断点击修改时输入框是否有值
       if (this.saleAttrValueText) {
         // 有值 就添加到销售属性值列表spuSaleAttrValueList
-        this.spuSaleAttrValueList.push({
+        row.spuSaleAttrValueList.push({
           baseSaleAttrId: row.baseSaleAttrId, // 所有销售属性id
           saleAttrName: row.saleAttrName, // 销售属性名称
           spuId: row.spuId, // spu id
           saleAttrValueName: this.saleAttrValueText, // 销售属性值名称
         });
+        // 添加完 数据清空
+        this.saleAttrValueText = "";
       }
       // 如果没有值就不做编辑
       row.edit = false;
