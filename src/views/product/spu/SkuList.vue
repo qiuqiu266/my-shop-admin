@@ -1,13 +1,13 @@
 <template>
   <el-card>
     <el-form label-width="80px" :model="sku" :rules="rules" ref="spuForm">
-      <el-form-item label="SPU名称">
+      <el-form-item label="SPU名称" prop="spuName">
         <span>{{ spu.spuName }}</span>
       </el-form-item>
-      <el-form-item label="SKU名称">
-        <el-input placeholder="请输入SKU名称"></el-input>
+      <el-form-item label="SKU名称" prop="skuName">
+        <el-input placeholder="请输入SKU名称" v-model="sku.skuName"></el-input>
       </el-form-item>
-      <el-form-item label="价格(元)">
+      <el-form-item label="价格(元)" prop="price">
         <!-- <el-input placeholder="请输入价格"></el-input> -->
         <el-input-number
           align="left"
@@ -30,57 +30,65 @@
         <el-input placeholder="SKU规格描述" type="textarea"></el-input>
       </el-form-item>
       <el-form-item label="平台属性">
-        <div class="skulist-select-container">
-          <span>颜色</span>
-          <el-select placeholder="请输入">
-            <el-option>11</el-option>
-            <el-option>22</el-option>
-          </el-select>
-        </div>
-        <div class="skulist-select-container">
-          <span>容量</span>
-          <el-select placeholder="请输入">
-            <el-option>11</el-option>
-            <el-option>22</el-option>
+        <div
+          class="skulist-select-container"
+          v-for="attr in attrList"
+          :key="attr.id"
+        >
+          <span>{{ attr.attrName }}</span>
+          <el-select placeholder="请输入" v-model="spu.attrId">
+            <el-option
+              v-for="attrVal in attr.attrValueList"
+              :key="attrVal.id"
+              :label="attrVal.valueName"
+              :value="attrVal.id"
+              >{{ attrVal.valueName }}</el-option
+            >
           </el-select>
         </div>
       </el-form-item>
       <el-form-item label="销售属性">
-        <div class="skulist-select-container">
-          <span>选择颜色</span>
+        <div
+          class="skulist-select-container"
+          v-for="spuSale in spuSaleAttrList"
+          :key="spuSale.id"
+        >
+          <span>{{ spuSale.saleAttrName }}</span>
           <el-select placeholder="请输入">
-            <el-option>11</el-option>
-            <el-option>22</el-option>
+            <el-option
+              v-for="value in spuSale.spuSaleAttrValueList"
+              :key="value.id"
+              :label="value.saleAttrValueName"
+              :value="value.id"
+            ></el-option>
           </el-select>
         </div>
       </el-form-item>
       <el-form-item label="图片列表">
         <el-table
-          :data="[]"
+          :data="imageList"
           border
-          tooltip-effect="dark"
           style="width: 100%; margin: 20px 0"
           @selection-change="handleSelectionChange"
         >
-          <el-table-column type="selection" width="80" align="center">
+          <el-table-column
+            type="selection"
+            width="80"
+            align="center"
+            prop="isCheck"
+          >
           </el-table-column>
           <el-table-column label="图片">
             <template slot-scope="scope">
-              <img :src="scope.row.imgUrl" alt="" />
+              <img :src="scope.row.imgUrl" :alt="scope.row.imgName" />
             </template>
           </el-table-column>
-          <el-table-column label="名称">
-            <template>
-              <!--  -->
-            </template>
-          </el-table-column>
+          <el-table-column label="名称" prop="imgName"> </el-table-column>
           <el-table-column label="操作">
             <template>
-              <el-popconfirm>
-                <el-button type="primary" icon="el-icon-delete" size="mini"
-                  >设置为默认</el-button
-                >
-              </el-popconfirm>
+              <el-button type="primary" size="mini"
+                >设置为默认</el-button
+              >
             </template>
           </el-table-column>
         </el-table>
@@ -104,7 +112,7 @@ export default {
       spu: this.spuItem, // spu 数据
       rules: {}, // 校验规则
       imageList: [], // 所有图片列表
-      saleAttrList: [], // 所有销售数据列表
+      spuSaleAttrList: [], // spu销售数据列表
       attrList: [], // 平台属性列表
       sku: {}, // sku数据
     };
@@ -133,15 +141,16 @@ export default {
         this.$message.error(result.message);
       }
     },
-    // 获取所有销售属性列表
-    async getSaleAttrList() {
+    // 获取Spu销售属性列表
+    async getSpuSaleAttrList() {
       // 解构获取id
-      const result = await this.$API.spu.getSaleAttrList();
+      const { id } = this.spu;
+      const result = await this.$API.spu.getSpuSaleAttrList(id);
       if (result.code === 200) {
         // console.log(result);
-        this.$message.success("获取所有销售属性列表成功");
-        // 获取所有销售属性
-        this.saleAttrList = result.data;
+        this.$message.success("获取Spu销售属性列表成功");
+        // 获取Spu销售属性
+        this.spuSaleAttrList = result.data;
       } else {
         this.$message.error(result.message);
       }
@@ -166,7 +175,7 @@ export default {
   },
   mounted() {
     this.getSpuImageList();
-    this.getSaleAttrList();
+    this.getSpuSaleAttrList();
     this.getAttrList();
   },
 };
