@@ -1,7 +1,13 @@
 <template>
   <div>
     <el-card style="margin-top: 20px">
-      <el-button type="primary" icon="el-icon-plus">添加SPU</el-button>
+      <el-button
+        type="primary"
+        icon="el-icon-plus"
+        :disabled="!category.category3Id"
+        @click="$emit('showUpdateList', { category3Id: category.category3Id })"
+        >添加SPU</el-button
+      >
       <el-table
         style="margin: 20px 0; width: 100%"
         :data="spuList"
@@ -17,17 +23,18 @@
           </template> -->
         </el-table-column>
         <el-table-column label="操作">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <el-button
               type="primary"
               icon="el-icon-plus"
               size="mini"
+              @click="$emit('showSkuList', { ...row, ...category })"
             ></el-button>
             <el-button
               type="primary"
               icon="el-icon-edit"
               size="mini"
-              @click="$emit('showUpdateList',row)"
+              @click="$emit('showUpdateList', row)"
             ></el-button>
             <el-button type="info" icon="el-icon-info" size="mini"></el-button>
             <el-button

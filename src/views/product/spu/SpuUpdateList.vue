@@ -133,7 +133,7 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="save">保存</el-button>
-        <el-button >取 消</el-button>
+        <el-button @click="$emit('showList', spu.category3Id)">取 消</el-button>
       </el-form-item>
     </el-form>
     <el-dialog :visible.sync="visible">
@@ -204,7 +204,7 @@ export default {
     },
     // 删除当个属性值
     delTag(index, row) {
-      this.spuSaleAttrValueList.splice(index, 1);
+      row.spuSaleAttrValueList.splice(index, 1);
       // row.spuSaleAttrValueList = row.spuSaleAttrValueList.filter(
       //   (saleAttrValue) => saleAttrValue.id !== tageId
       // );
@@ -258,7 +258,7 @@ export default {
           if (result.code === 200) {
             // 切换回showList
             this.$emit("showList", this.spu.category3Id);
-            this.$message.success(`{this.spu.id ? "更新":"添加"}SPU成功`);
+            this.$message.success(`${this.spu.id ? "更新":"添加"}SPU成功`);
           } else {
             this.$message.error(result.message);
           }
@@ -301,7 +301,7 @@ export default {
     //   const sale = this.saleAttrList.find((sale) => sale.id === saleAttrId);
     //   // 将选中的销售属性添加到SPU属性列表中
     //   this.spuSaleAttrList.push({
-    //     abseSaleAttrId: sale.id, // 所有销售属性id
+    //     baseSaleAttrId: sale.id, // 所有销售属性id
     //     saleAttrName: sale.name, // 所有销售属性名称
     //     spuId: id, // spu id
     //     spuSaleAttrList: [], // spu销售属性值列表
@@ -315,14 +315,14 @@ export default {
       // 获取选中的销售属性id
       const { sale, id } = this.spu;
       // 将sale的id name 切割出来
-      const [abseSaleAttrId, saleAttrName] = sale.split("-");
+      const [baseSaleAttrId, saleAttrName] = sale.split("-");
       // 将选中的销售属性添加到SPU属性列表中
       this.spuSaleAttrList.push({
         // 前面加个+ 转换为num 类型
-        abseSaleAttrId: +abseSaleAttrId, // 所有销售属性id
+        baseSaleAttrId: +baseSaleAttrId, // 所有销售属性id
         saleAttrName, // 所有销售属性名称
         spuId: id, // spu id
-        spuSaleAttrList: [], // spu销售属性值列表
+        spuSaleAttrValueList: [], // spu销售属性值列表
       });
       // 清空选中的销售属性id
       this.spu.sale = "";
@@ -430,10 +430,14 @@ export default {
     },
   },
   async mounted() {
+    // 没有id 是添加 需要获取品牌数据 和 销售属性
     this.getTrademarkList();
-    this.getSpuImageList();
     this.getSaleAttrList();
-    this.getSpuSaleAttrList();
+    // 有id 是修改  需要发送两个两个请求 获取到 销售属性和图片数据
+    if (this.spu.id) {
+      this.getSpuSaleAttrList();
+      this.getSpuImageList();
+    }
   },
 };
 </script>
